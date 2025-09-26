@@ -1,1 +1,1 @@
-# discrete_mathematics_labs
+# discrete mathematics labs
