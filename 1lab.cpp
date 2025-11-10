@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include <system_error>
 #include <vector>
 
 struct Node
@@ -9,7 +10,6 @@ struct Node
     Node *next;
 
     Node(char value) : data(value), next(nullptr) {} 
-
 };
 
 class Set
@@ -20,6 +20,17 @@ class Set
 
     public:
     Set() : head(nullptr) {}
+
+    ~Set()
+    {
+        Node *curr_iter = head;
+        while (curr_iter)
+        {
+            Node *next = curr_iter->next;
+            delete curr_iter;
+            curr_iter = next;
+        }
+    }
 
     Set(char name)
     {
@@ -94,36 +105,36 @@ class Set
         new_node->next = curr_iter;
     }
 
-    // void del(char value)
-    // {
-    //     if (head == nullptr)
-    //     {
-    //         std::invalid_argument("first, create a set");
-    //     }
-    //     if (head->next == nullptr)
-    //     {
-    //         return;
-    //     }
+    void del(char value)
+    {
+        if (head == nullptr)
+        {
+            std::invalid_argument("first, create a set");
+        }
+        if (head->next == nullptr)
+        {
+            return;
+        }
 
-    //     Node *temp_ptr;
-    //     Node *curr_iter = head->next;
-    //     Node *prev_iter = nullptr;
-    //     // if (value == curr_iter->data)
-    //     // {
+        Node *temp_ptr;
+        Node *curr_iter = head->next;
+        Node *prev_iter = head;
+        // if (value == curr_iter->data)
+        // {
 
-    //     // }
-    //     while(curr_iter != nullptr && curr_iter->data != value)
-    //     {
-    //         prev_iter = curr_iter;
-    //         curr_iter = curr_iter->next;
-    //     }
-    //     if (curr_iter != nullptr)
-    //     {
-    //         temp_ptr = curr_iter;
-    //         prev_iter->next = curr_iter->next;
+        // }
+        while(curr_iter != nullptr && curr_iter->data != value)
+        {
+            prev_iter = curr_iter;
+            curr_iter = curr_iter->next;
+        }
+        if (curr_iter != nullptr)
+        {
+            prev_iter->next = curr_iter->next;
+            delete curr_iter;
             
-    //     }        
-    // }
+        }        
+    }
 
     static void see()
     {
@@ -184,6 +195,9 @@ int main()
     C.add('Z');
     C.add('g');
     C.add('#');
+
+    C.del('#');
+    C.del('g');
     Set::see();
 
 
