@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -9,8 +10,8 @@ struct Datastruct
 {
     std::vector<char> set;
     std::vector<std::pair<char, char>> pairs;
-    bool is_equivalence_relation;
-    bool is_order_relation;
+    bool is_equivalence_relation = false;
+    bool is_order_relation = false;
 };
 
 Datastruct extract_data_from_file(std::ifstream &f)
@@ -66,8 +67,8 @@ Datastruct extract_data_from_file(std::ifstream &f)
 
 void check_relation(Datastruct *data)
 {
-    bool is_reflexive = true, is_antireflexive = true, is_symmetric = true, is_antisymmetric = true, 
-        is_asymmetric = true, is_transitive = true, is_antitransitive = true, is_complete = true;
+    bool is_reflexive = true, is_antireflexive = false, is_symmetric = true, is_antisymmetric = true, 
+        is_asymmetric = false, is_transitive = true, is_antitransitive = true, is_complete = true;
 
     for (char const set_elem : data->set)
     {
@@ -93,7 +94,7 @@ void check_relation(Datastruct *data)
         bool found = false;
         for (auto const other_pair : data->pairs)
         {
-            if (pair.first == other_pair.second && pair.second == other_pair.first)
+            if ((pair.first == other_pair.second) && (pair.second == other_pair.first))
             {
                 if (pair.first != pair.second) {is_antisymmetric = false;}
                 found = true;
@@ -155,7 +156,7 @@ void check_relation(Datastruct *data)
 
     if (is_reflexive && is_symmetric && is_transitive) {data->is_equivalence_relation = true;}
 
-    if (is_antisymmetric && is_transitive) {data->is_order_relation= true;}
+    if (is_antisymmetric && is_transitive) {data->is_order_relation = true;}
 
         std::cout << "Свойства отношения:" << std::endl;
     std::cout << "1. Рефлексивность:          " << (is_reflexive ? "+" : "-") << std::endl;
@@ -169,17 +170,124 @@ void check_relation(Datastruct *data)
 
 
     std::cout << "Является ли отношением эквивалентности   " << (data->is_equivalence_relation ? "ДА": "НЕТ") << std::endl;
-    std::cout << "Является ли отношением порядка           " << (data->is_order_relation? "ДА": "НЕТ") << std::endl;
+    std::cout << "Является ли отношением порядка           " << (data->is_order_relation ? "ДА": "НЕТ") << std::endl;
 }
 
 void print_equivalence_info(Datastruct const *data)
 {
+    std::vector<bool> visited(data->set.size(), false);
+    int class_count = 0;
     
+    std::cout << "\nКлассы эквивалентности:" << std::endl;
+    
+    for (size_t i = 0; i < data->set.size(); ++i) 
+    {
+        if (!visited[i]) 
+        {
+            class_count++;
+            std::vector<char> current_class;
+            current_class.push_back(data->set[i]);
+            visited[i] = true;
+            
+            for (size_t j = i + 1; j < data->set.size(); ++j) 
+            {
+                if (!visited[j]) 
+                {
+                    bool equivalent = false;
+                    for (auto const &pair : data->pairs)
+                    {
+                        if (pair.first == data->set[i] && pair.second == data->set[j]) 
+                        {
+                            equivalent = true;
+                            break;
+                        }
+                    }
+                    if (equivalent) 
+                    {
+                        current_class.push_back(data->set[j]);
+                        visited[j] = true;
+                    }
+                }
+            }
+            
+            for (char elem : current_class) 
+            {
+                std::cout << elem << ": ";
+                for (size_t k = 0; k < current_class.size(); ++k) 
+                {
+                    std::cout << current_class[k];
+                    if (k < current_class.size() - 1) 
+                    {
+                        std::cout << ", ";
+                    }
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+    
+    std::cout << "Индекс разбиения: " << class_count << std::endl;
 }
 
-void print_min_max_elements(Datastruct const *data)
+void print_min_elements(Datastruct const *data)
 {
+    std::vector<char> result;
+    for (char const elem : data->set)
+    {
+        bool is_find = false;
+        for (auto const &pair :data->pairs)
+        {
+            if (elem == pair.second && pair.first != pair.second)
+            {
+                is_find = true;
+            }
+        }
+        if (!is_find)
+        {
+            result.push_back(elem);
+        }
+    }
 
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        std::cout << result[i];
+        if (!(i == result.size() - 1))
+        {
+            std::cout << ", ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+void print_max_elements(Datastruct const *data)
+{
+    std::vector<char> result;
+    for (char const elem : data->set)
+    {
+        bool is_find = false;
+        for (auto const &pair :data->pairs)
+        {
+            if (elem == pair.first && pair.first != pair.second)
+            {
+                is_find = true;
+            }
+        }
+        if (!is_find)
+        {
+            result.push_back(elem);
+        }
+    }
+
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        std::cout << result[i];
+        if (!(i == result.size() - 1))
+        {
+            std::cout << ", ";
+        }
+    }
+    std::cout << std::endl;
 }
 
 int main()
@@ -202,7 +310,8 @@ int main()
 
     if (data.is_order_relation)
     {
-        print_min_max_elements(&data);
+        print_max_elements(&data);
+        print_min_elements(&data);
     }
 
     return 0;
