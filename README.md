@@ -1,6 +1,6 @@
 # discrete mathematics labs
 ## 1 task: set implementation
-set implementation on singly linked list and canonical operations and canonical operations for them
+set implementation on singly linked list and canonical operations for them
 ## 2 task: relations implementation
 relations implementation and canonical operations and canonical operations for them
 ## 3 task: Boolean Formula Analyzer
